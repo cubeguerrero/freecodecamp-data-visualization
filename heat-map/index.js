@@ -71,6 +71,8 @@ d3.json(dataURL).then((data) => {
       return a;
     })
     .attr('fill', 'black')
-    .attr('width', width / dataset.length)
+    .attr('width', () => {
+      return (width - padding*2) / (maxYear - minYear);
+    })
     .attr('height', (height - 30*2)/ 12);
 });
