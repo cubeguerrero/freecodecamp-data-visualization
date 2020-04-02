@@ -1,12 +1,14 @@
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const dataURL = 'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json';
 const colors = ['#313695', '#4575B4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee190', '#feae61', '#f46c43', '#d73027', '#a50026'];
-const margin = { top: 20, right: 20, bottom: 60, left: 20 };
+const paddings = { top: 20, right: 20, bottom: 60, left: 20 };
 const fullHeight = 640;
 const fullWidth = 960;
-const width  = fullWidth - (margin.right + margin.left);
-const height = fullHeight - (margin.top + margin.bottom);
-const padding = margin.top;
+const width  = fullWidth - (paddings.right + paddings.left);
+const height = fullHeight - (paddings.top + paddings.bottom);
+const padding = paddings.top;
+const legendWidth = 300;
+const legendHeight = 30;
 
 const title = 'Monthly Global Land-Surface Temperature';
 const container = d3.select('#main');
@@ -48,6 +50,37 @@ d3.json(dataURL).then((data) => {
     })(minTemp, maxTemp, colors.length))
     .range(colors)
 
+  const legendXScale = d3.scaleLinear()
+    .domain([minTemp, maxTemp])
+    .range([0, legendWidth]);
+
+  const legendXAxis = d3.axisTop(legendXScale)
+    .tickValues(legendThreshold.domain())
+    .tickFormat(d3.format(".1f"));
+
+  const legend = svg.append('g')
+    .attr('id', 'legend')
+    .attr("transform", `translate(${paddings.left * 3}, ${fullHeight - legendHeight})`);
+
+  legend.selectAll('rect')
+    .data(legendThreshold.range().map((color) => {
+      var d = legendThreshold.invertExtent(color);
+      if (d[0] === null) d[0] = legendXAxis.domain()[0];
+      if (d[1] === null) d[1] = legendXAxis.domain()[1];
+      return d;
+    }))
+    .enter()
+    .append("rect")
+    .style("fill", (d) => legendThreshold(d[0]))
+    .attr('x', (d) => legendXScale(d[0]))
+    .attr('y', 0)
+    .attr('width', (d) => legendXScale(d[1]) - legendXScale(d[0]))
+    .attr('height', legendHeight);
+
+  legend.append('g')
+    .call(legendXAxis);
+
+  // rects
   const xScale = d3.scaleBand()
     .domain([...new Set(yearData)])
     .range([padding * 3, width], 0, 0);
