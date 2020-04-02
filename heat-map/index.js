@@ -10,6 +10,35 @@ const padding = paddings.top;
 const legendWidth = 300;
 const legendHeight = 30;
 
+const tooltip = d3.select("#chart")
+                  .append("div")
+                  .attr("class", "tooltip")
+                  .attr("id", "tooltip")
+                  .style("opacity", 0)
+                  .style("z-index", 1);
+
+function tooltipMouseover(d) {
+  const year = d['year'];
+  const month = months[d['month'] - 1];
+  const temp = d['variance'];
+  const p = `<p><span>${year}: ${month}<span><br />${temp}</p>`;
+
+  tooltip.attr("data-year", year);
+
+  tooltip.html(p)
+         .style("left", (d3.event.pageX + 15) + "px")
+         .style("top", (d3.event.pageY - 28) + "px")
+         .transition()
+         .duration(200) // ms
+         .style("opacity", .9) // started as 0!
+}
+
+function tooltipMouseout(d) {
+  tooltip.transition()
+        .duration(300) // ms
+        .style("opacity", 0); // don't care about position!
+}
+
 const title = 'Monthly Global Land-Surface Temperature';
 const container = d3.select('#main');
 const svg = d3.select('#chart')
@@ -123,5 +152,7 @@ d3.json(dataURL).then((data) => {
     .attr('width', () => {
       return (width - padding*2) / (maxYear - minYear);
     })
-    .attr('height', (height - 30*2)/ 12);
+    .attr('height', (height - 30*2)/ 12)
+    .on('mouseover', tooltipMouseover)
+    .on('mouseout', tooltipMouseout);
 });

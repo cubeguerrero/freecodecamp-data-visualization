@@ -6,3 +6,21 @@ body {
   width: 60rem;
   margin: 0 auto;
 }
+
+.tooltip {
+  position: absolute;
+  font-size: 0.75rem;
+  width:  auto;
+  height: auto;
+  padding: 0.25rem;
+  pointer-events: none;
+  background-color: white;
+  border: 1px solid black;
+  font-family: monospace;
+}
+
+.tooltip > p {
+  color: black;
+  margin: 0;
+  padding: 0;
+}
